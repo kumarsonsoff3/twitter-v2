@@ -10,6 +10,10 @@ export declare interface RequestParameters {
   [key: string]: string | Array<string> | RequestParameters;
 }
 
+export declare interface ResponseParameters {
+  [key: string]: string | boolean;
+}
+
 function applyParameters(
   url: URL,
   parameters?: RequestParameters,
@@ -41,7 +45,8 @@ export default class Twitter {
 
   async get<T extends any>(
     endpoint: string,
-    parameters?: RequestParameters
+    parameters?: RequestParameters,
+    responseParameters: ResponseParameters = { json: true }
   ): Promise<T> {
     const url = new URL(`https://api.twitter.com/2/${endpoint}`);
     applyParameters(url, parameters);
@@ -52,7 +57,9 @@ export default class Twitter {
           method: 'GET',
         }),
       },
-    }).then((response) => response.json());
+    }).then((response) => {
+      return responseParameters.json ? response.json() : response;
+    });
 
     const error = TwitterError.fromJson(json);
     if (error) {
