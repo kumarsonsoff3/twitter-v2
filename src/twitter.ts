@@ -72,7 +72,8 @@ export default class Twitter {
   async post<T extends any>(
     endpoint: string,
     body: object,
-    parameters?: RequestParameters
+    parameters?: RequestParameters,
+    responseParameters: ResponseParameters = { json: true }
   ): Promise<T> {
     const url = new URL(`https://api.twitter.com/2/${endpoint}`);
     applyParameters(url, parameters);
@@ -87,7 +88,9 @@ export default class Twitter {
         }),
       },
       body: JSON.stringify(body || {}),
-    }).then((response) => response.json());
+    }).then((response) => {
+      return responseParameters.json ? response.json() : response;
+    });
 
     const error = TwitterError.fromJson(json);
     if (error) {
@@ -99,7 +102,8 @@ export default class Twitter {
 
   async delete<T extends any>(
     endpoint: string,
-    parameters?: RequestParameters
+    parameters?: RequestParameters,
+    responseParameters: ResponseParameters = { json: true }
   ): Promise<T> {
     const url = new URL(`https://api.twitter.com/2/${endpoint}`);
     applyParameters(url, parameters);
@@ -111,7 +115,9 @@ export default class Twitter {
           method: 'DELETE',
         }),
       },
-    }).then((response) => response.json());
+    }).then((response) => {
+      return responseParameters.json ? response.json() : response;
+    });
 
     const error = TwitterError.fromJson(json);
     if (error) {
