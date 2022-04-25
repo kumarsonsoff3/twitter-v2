@@ -41,7 +41,7 @@ class Twitter {
             },
         }).then((response) => {
             if (typeof responseParameters.callback === 'function') {
-                responseParameters.callback(response);
+                responseParameters.callback(response.headers);
             }
             return responseParameters.json ? response.json() : response;
         });
@@ -66,7 +66,7 @@ class Twitter {
             body: JSON.stringify(body || {}),
         }).then((response) => {
             if (typeof responseParameters.callback === 'function') {
-                responseParameters.callback(response);
+                responseParameters.callback(response.headers);
             }
             return responseParameters.json ? response.json() : response;
         });
