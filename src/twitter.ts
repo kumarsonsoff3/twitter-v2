@@ -11,7 +11,7 @@ export declare interface RequestParameters {
 }
 
 export declare interface ResponseParameters {
-  [key: string]: string | boolean;
+  [key: string]: string | boolean | ((any) => void);
 }
 
 function applyParameters(
@@ -46,7 +46,7 @@ export default class Twitter {
   async get<T extends any>(
     endpoint: string,
     parameters?: RequestParameters,
-    responseParameters: ResponseParameters = { json: true }
+    responseParameters: ResponseParameters = { json: true, callback: false }
   ): Promise<T> {
     const url = new URL(`https://api.twitter.com/2/${endpoint}`);
     applyParameters(url, parameters);
@@ -58,6 +58,9 @@ export default class Twitter {
         }),
       },
     }).then((response) => {
+      if (typeof responseParameters.callback === 'function') {
+        responseParameters.callback(response);
+      }
       return responseParameters.json ? response.json() : response;
     });
 
@@ -73,7 +76,7 @@ export default class Twitter {
     endpoint: string,
     body: object,
     parameters?: RequestParameters,
-    responseParameters: ResponseParameters = { json: true }
+    responseParameters: ResponseParameters = { json: true, callback: false }
   ): Promise<T> {
     const url = new URL(`https://api.twitter.com/2/${endpoint}`);
     applyParameters(url, parameters);
@@ -89,6 +92,9 @@ export default class Twitter {
       },
       body: JSON.stringify(body || {}),
     }).then((response) => {
+      if (typeof responseParameters.callback === 'function') {
+        responseParameters.callback(response);
+      }
       return responseParameters.json ? response.json() : response;
     });
 
