@@ -30,7 +30,7 @@ class Twitter {
     constructor(args) {
         this.credentials = new Credentials_1.default(args);
     }
-    async get(endpoint, parameters, responseParameters = { json: true }) {
+    async get(endpoint, parameters, responseParameters = { json: true, callback: false }) {
         const url = new url_1.URL(`https://api.twitter.com/2/${endpoint}`);
         applyParameters(url, parameters);
         const json = await node_fetch_1.default(url.toString(), {
@@ -39,14 +39,19 @@ class Twitter {
                     method: 'GET',
                 }),
             },
-        }).then((response) => responseParameters.json ? response.json() : response);
+        }).then((response) => {
+            if (typeof responseParameters.callback === 'function') {
+                responseParameters.callback(response);
+            }
+            return responseParameters.json ? response.json() : response;
+        });
         const error = TwitterError_js_1.default.fromJson(json);
         if (error) {
             throw error;
         }
         return json;
     }
-    async post(endpoint, body, parameters) {
+    async post(endpoint, body, parameters, responseParameters = { json: true, callback: false }) {
         const url = new url_1.URL(`https://api.twitter.com/2/${endpoint}`);
         applyParameters(url, parameters);
         const json = await node_fetch_1.default(url.toString(), {
@@ -59,14 +64,19 @@ class Twitter {
                 }),
             },
             body: JSON.stringify(body || {}),
-        }).then((response) => response.json());
+        }).then((response) => {
+            if (typeof responseParameters.callback === 'function') {
+                responseParameters.callback(response);
+            }
+            return responseParameters.json ? response.json() : response;
+        });
         const error = TwitterError_js_1.default.fromJson(json);
         if (error) {
             throw error;
         }
         return json;
     }
-    async delete(endpoint, parameters) {
+    async delete(endpoint, parameters, responseParameters = { json: true }) {
         const url = new url_1.URL(`https://api.twitter.com/2/${endpoint}`);
         applyParameters(url, parameters);
         const json = await node_fetch_1.default(url.toString(), {
@@ -76,7 +86,9 @@ class Twitter {
                     method: 'DELETE',
                 }),
             },
-        }).then((response) => response.json());
+        }).then((response) => {
+            return responseParameters.json ? response.json() : response;
+        });
         const error = TwitterError_js_1.default.fromJson(json);
         if (error) {
             throw error;
